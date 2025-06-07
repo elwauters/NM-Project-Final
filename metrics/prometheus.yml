@@ -1,0 +1,55 @@
+global:
+  scrape_interval: 5s
+
+  external_labels:
+    monitor: 'open5gs-monitor'
+
+scrape_configs:
+  - job_name: 'amf'
+    static_configs:
+      - targets: ['AMF_IP:9091']
+  - job_name: 'smf'
+    static_configs:
+      - targets: ['SMF_IP:9091']
+  - job_name: 'pcf'
+    static_configs:
+      - targets: ['PCF_IP:9091']
+  - job_name: 'upf'
+    static_configs:
+      - targets: ['UPF_IP:9091']
+  - job_name: 'mme'
+    static_configs:
+      - targets: ['MME_IP:9091']
+  - job_name: 'blackbox-ping'
+    metrics_path: /probe
+    params:
+      module: [icmp_ue]
+    static_configs:
+     - targets:
+       - 172.22.0.24
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 172.22.0.37:9115 # BLACKBOX container IP address
+  - job_name: 'iperf3'
+    scrape_interval: 1m
+    scrape_timeout: 30s
+    metrics_path: /probe
+
+    static_configs:
+      - targets:
+        - 172.22.0.24
+    params:
+      port: ['5201']
+      udp_mode: ['true']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__para_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 172.22.0.38:9579 # IPERF container IP address
+

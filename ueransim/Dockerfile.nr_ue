@@ -1,0 +1,5 @@
+FROM docker_ueransim
+
+RUN apt-get update && apt-get install -y iperf3
+
+CMD sh -c "/ueransim_image_init.sh & iperf3 -s -D & tail -f /dev/null"
